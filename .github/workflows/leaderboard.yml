@@ -26,23 +26,17 @@ jobs:
           git config user.name "leaderboard-bot"
           git config user.email "actions@github.com"
 
-      - name: Update leaderboard every minute
+      - name: Test files
         run: |
-          END=$((SECONDS + 340*60))
+          echo "WHERE AM I?"
+          pwd
 
-          while [ $SECONDS -lt $END ]; do
+          echo "WHAT FILES ARE HERE?"
+          ls -la
 
-            echo "Updating leaderboard..."
-            Rscript script_for_updates.R
+          echo "DOES THE SCRIPT EXIST?"
+          ls -la script_for_updates.R
 
-            git add data/tls_leaderboard_data.rds
-
-            if git diff --cached --quiet; then
-              echo "No change to leaderboard."
-            else
-              git commit -m "Update leaderboard"
-              git push
-            fi
-
-            sleep 60
-          done
+      - name: Update leaderboard
+        run: |
+          Rscript script_for_updates.R
