@@ -1,30 +1,17 @@
 library(shiny)
 library(bslib)
 library(dplyr)
-library(tidyr)
-library(golfastr)
-
-teamOwners_golferPairs <- data.frame(
-  owner = c("Craig", "Ryan", "Mont", "Chris", "BWenz", "Jordan",
-            "Charlie", "Franco", "Justin", "Tyler", "Nate", "Luke"),
-  player_name = c("Scottie Scheffler", "Rory McIlroy", "Xander Schauffele", "Ludvig Åberg", "Sam Burns",
-                  "Cameron Young", "Tommy Fleetwood", "Matt Fitzpatrick", "Si Woo Kim",
-                  "Hideki Matsuyama", "Chris Gotterup", "Viktor Hovland")
-)
+library(httr2)
 
 get_leaderboard <- function() {
-  load_leaderboard(
-    year = as.integer(format(Sys.Date(), "%Y")),
-    tournament = "BMW Championship",
-    tour = "pga"
+  tmp <- tempfile(fileext = ".rds")
+  
+  request(
+    "https://raw.githubusercontent.com/montgomeryinman/bmw_tls_leaderboard/main/data/tls_leaderboard_data.rds"
   ) %>%
-    filter(player_name %in% teamOwners_golferPairs$player_name) %>%
-    left_join(teamOwners_golferPairs, by = "player_name") %>%
-    select("Pos" = position, 
-           "Player" = player_name, 
-           "Owner" = owner, 
-           "Total Score" = total_score, 
-           "To Par" = score_to_par)
+    req_perform(path = tmp)
+  
+  readRDS(tmp)
 }
 
 ui <- page_sidebar(
@@ -34,31 +21,13 @@ ui <- page_sidebar(
 )
 
 server <- function(input, output, session) {
-  leaderboard_data <- reactivePoll(
-    intervalMillis = 60000,           # check every 60s — tune to taste
-    session = session,
-    checkFunc = function() Sys.time(),  # always re-check; swap for something cheaper if you have it
-    valueFunc = get_leaderboard
-  )
+  
+  leaderboard_data <- get_leaderboard()
   
   output$table <- renderTable({
-    leaderboard_data()
+    leaderboard_data
   })
 }
 
 shinyApp(ui = ui, server = server)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
