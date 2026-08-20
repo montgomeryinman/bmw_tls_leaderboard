@@ -2,30 +2,47 @@ name: Update BMW Leaderboard
 
 on:
   schedule:
-    - cron: "0 13-23 * * *"   # kicks off hourly during tournament hours (adjust to your timezone/UTC)
-  workflow_dispatch: {}        # lets you trigger it manually too
+    - cron: "0 13-23 * * *"
+  workflow_dispatch:
 
 jobs:
   poll:
     runs-on: ubuntu-latest
-    timeout-minutes: 350       # stay under the 360-min (6hr) hard cap
+    timeout-minutes: 350
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - uses: r-lib/actions/setup-r@v2
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
 
-      - name: Install R deps
-        run: Rscript -e 'install.packages(c("dplyr","golfastr"))'
+      - name: Install R packages
+        run: |
+          Rscript -e 'install.packages(c("dplyr", "golfastr"), repos="https://cloud.r-project.org")'
 
-      - name: Poll every 60s until job times out
+      - name: Configure Git
+        run: |
+          git config user.name "leaderboard-bot"
+          git config user.email "actions@github.com"
+
+      - name: Update leaderboard every minute
         run: |
           END=$((SECONDS + 340*60))
+
           while [ $SECONDS -lt $END ]; do
+
+            echo "Updating leaderboard..."
             Rscript script_for_updates.R
-            git config user.name "montgomeryinman"
-            git config user.email "montgomeryinman@gmail.com"
+
             git add data/tls_leaderboard_data.rds
-            git diff --cached --quiet || git commit -m "update leaderboard"
-            git push || true
+
+            if git diff --cached --quiet; then
+              echo "No change to leaderboard."
+            else
+              git commit -m "Update leaderboard"
+              git push
+            fi
+
             sleep 60
           done
