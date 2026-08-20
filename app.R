@@ -1,6 +1,7 @@
 library(shiny)
 library(bslib)
-library(tidyverse)
+library(dplyr)
+library(tidyr)
 library(golfastr)
 
 teamOwners_golferPairs <- data.frame(
