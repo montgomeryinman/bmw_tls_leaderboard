@@ -6,9 +6,6 @@
 #                  "Hideki Matsuyama", "Chris Gotterup", "Viktor Hovland")
 #) %>% saveRDS(file = "data/pairs.RDS")
 
-library(dplyr)
-library(golfastr)
-
 pairs <- readRDS("data/pairs.RDS")
 
 leaderboard_data <- load_leaderboard(2026, "401811963") %>%
