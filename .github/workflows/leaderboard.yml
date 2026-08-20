@@ -19,7 +19,8 @@ jobs:
 
       - name: Install R packages
         run: |
-          Rscript -e 'install.packages(c("dplyr", "golfastr"), repos="https://cloud.r-project.org")'
+          Rscript -e 'install.packages("dplyr", repos="https://cloud.r-project.org")'
+          Rscript -e 'install.packages("golfastr", repos="https://cloud.r-project.org")'
 
       - name: Configure Git
         run: |
