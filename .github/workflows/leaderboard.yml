@@ -21,7 +21,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libcurl4-openssl-dev
-          Rscript -e 'install.packages(c("dplyr", "httr2", "golfastr"), repos="https://cloud.r-project.org")'
+          Rscript -e 'install.packages(c("dplyr", "httr2", "jsonlite", "golfastr"), repos="https://cloud.r-project.org")'
 
       - name: Configure Git
         run: |
