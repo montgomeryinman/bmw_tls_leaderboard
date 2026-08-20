@@ -6,9 +6,12 @@ get_leaderboard <- function() {
   
   tmp <- tempfile(fileext = ".rds")
   
-  request(
-    "https://raw.githubusercontent.com/montgomeryinman/bmw_tls_leaderboard/main/data/tls_leaderboard_data.rds"
-  ) |>
+  url <- paste0(
+    "https://raw.githubusercontent.com/montgomeryinman/bmw_tls_leaderboard/main/data/tls_leaderboard_data.rds?",
+    as.numeric(Sys.time())
+  )
+  
+  request(url) |>
     req_perform(path = tmp)
   
   readRDS(tmp)
@@ -30,11 +33,15 @@ server <- function(input, output, session) {
   
   leaderboard_data <- reactiveVal(get_leaderboard())
   
-  # Check GitHub every 5 minutes
   observe({
-    invalidateLater(5 * 60 * 1000, session)
+    invalidateLater(60 * 1000, session)
     
-    leaderboard_data(get_leaderboard())
+    tryCatch(
+      leaderboard_data(get_leaderboard()),
+      error = function(e) {
+        message("Failed to update leaderboard: ", e$message)
+      }
+    )
   })
   
   output$table <- renderTable({
