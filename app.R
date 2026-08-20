@@ -23,7 +23,7 @@ get_leaderboard <- function() {
            "Player" = player_name, 
            "Owner" = owner, 
            "Total Score" = total_score, 
-           "To Par" score_to_par)
+           "To Par" = score_to_par)
 }
 
 ui <- page_sidebar(
