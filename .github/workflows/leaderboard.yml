@@ -60,6 +60,7 @@ jobs:
               echo "Leaderboard changed!"
 
               git commit -m "Update leaderboard"
+              git pull --rebase origin main
               git push
             fi
 
